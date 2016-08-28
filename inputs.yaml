@@ -1,0 +1,11 @@
+# OPENSTACK_INPUTS
+keystone_password: ''
+keystone_tenant_name: ''
+keystone_url: ''
+keystone_username: ''
+region: ''
+external_network_name: 'external'
+openstack_fortigate_image_id: d2ab10eb-7108-4155-83cd-a2b0a57b7d54
+openstack_fortigate_flavor_id: 9cf6e43b-e191-47ca-8665-f8592e2d6227
+openstack_image_id: 676965bc-e973-4b8b-a77d-eba6daa9225c
+openstack_flavor_id: 78d43ae0-7c98-48d2-9adc-90e8f8f6fe99

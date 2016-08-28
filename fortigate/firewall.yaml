@@ -1,0 +1,69 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+dsl_definitions:
+
+  fortigate_ssh_config: &fortigate_ssh_config
+    host_string: { get_attribute: [fortigate_floating_ip, floating_ip_address] }
+    user: admin
+    password: ''
+
+node_templates:
+
+  fortigate_vip_1:
+    type: cloudify.Fortinet.FortiGate.Config
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          inputs:
+            config_name: firewall vip
+            config_id: linuxvmssh
+            config:
+              - extintf: external
+              - portforward: enable
+              - mappedip: { get_attribute: [fortigate_server, ip] }
+              - extport: 2222
+              - mappedport: 22
+            ssh_config: *fortigate_ssh_config
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: fortigate_server
+      - type: cloudify.relationships.depends_on
+        target: vlana
+      - type: cloudify.relationships.depends_on
+        target: zone_external
+      - type: cloudify.relationships.depends_on
+        target: zone1
+      - type: cloudify.relationships.depends_on
+        target: basic_route
+
+  fortigate_policy_allow_vip_1:
+    type: cloudify.Fortinet.FortiGate.Config
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          inputs:
+            config_name: firewall policy
+            config_id: 7
+            config:
+              - name: Allow VIP 1
+              - srcintf: external
+              - dstintf: zone1
+              - srcaddr: all
+              - dstaddr: linuxvmssh
+              - action: accept
+              - schedule: always
+              - service: ALL
+              - utm-status: enable
+              - av-profile: default
+              - ips-sensor: default
+              - profile-protocol-options: default
+            ssh_config: *fortigate_ssh_config
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: fortigate_server
+      - type: cloudify.relationships.depends_on
+        target: fortigate_vip_1
+      - type: cloudify.relationships.depends_on
+        target: zone_external
+      - type: cloudify.relationships.depends_on
+        target: zone1

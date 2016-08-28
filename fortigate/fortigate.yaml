@@ -1,0 +1,13 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+imports:
+  - plugins/cloudify-fortinet-plugin/plugin.yaml
+  - vlana.yaml
+  - vlanx.yaml
+  - policies.yaml
+  - firewall.yaml
+  - routes.yaml
+
+inputs:
+  fortigate_server_username:
+    default: admin

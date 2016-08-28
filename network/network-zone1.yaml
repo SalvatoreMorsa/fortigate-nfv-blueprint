@@ -1,0 +1,60 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+inputs:
+
+  zone1_vlanx_network_name:
+    default: zone1_vlanx_network
+
+dsl_definitions:
+
+  openstack_configuration: &openstack_configuration
+    username: { get_input: keystone_username }
+    password: { get_input: keystone_password }
+    tenant_name: { get_input: keystone_tenant_name }
+    auth_url: { get_input: keystone_url }
+    region: { get_input: region }
+    nova_url: { get_input: nova_url }
+    neutron_url: { get_input: neutron_url }
+
+node_templates:
+
+  zone1_vlanx_network:
+    type: cloudify.openstack.nodes.Network
+    properties:
+      openstack_config: *openstack_configuration
+      resource_id: { get_input: zone1_vlanx_network_name }
+
+  zone1_vlanx_network_subnet:
+    type: cloudify.openstack.nodes.Subnet
+    properties:
+      openstack_config: *openstack_configuration
+      subnet:
+        ip_version: 4
+        cidr: { get_input: zone1_vlanx_cidr }
+    relationships:
+      - target: zone1_vlanx_network
+        type: cloudify.relationships.contained_in
+
+  zone1_vlanx_network_port:
+    type: cloudify.openstack.nodes.Port
+    properties:
+      openstack_config: *openstack_configuration
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: zone1_vlanx_network
+      - type: cloudify.relationships.depends_on
+        target: zone1_vlanx_network_subnet
+      - type: cloudify.openstack.port_connected_to_security_group
+        target: cloudify_fortigate_group
+
+  fortigate_server_zone1_vlanx_network_port:
+    type: cloudify.openstack.nodes.Port
+    properties:
+      openstack_config: *openstack_configuration
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: zone1_vlanx_network
+      - type: cloudify.relationships.depends_on
+        target: zone1_vlanx_network_subnet
+      - type: cloudify.openstack.port_connected_to_security_group
+        target: cloudify_fortigate_group

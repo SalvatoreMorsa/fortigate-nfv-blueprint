@@ -1,0 +1,64 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+dsl_definitions:
+
+  fortigate_ssh_config: &fortigate_ssh_config
+    host_string: { get_attribute: [fortigate_floating_ip, floating_ip_address] }
+    user: admin
+    password: ''
+
+node_templates:
+
+  external_zone1:
+    type: cloudify.Fortinet.FortiGate.Config
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          inputs:
+            config_name: firewall policy
+            config_id: 1
+            config:
+              - name: exteral_zone1
+              - srcintf: external
+              - dstintf: zone1
+              - srcaddr: all
+              - dstaddr: all
+              - action: accept
+              - schedule: always
+              - service: ALL
+              - nat: enable
+            ssh_config: *fortigate_ssh_config
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: fortigate_server
+      - type: cloudify.relationships.depends_on
+        target: zone_external
+      - type: cloudify.relationships.depends_on
+        target: zone1
+
+  zone1_external:
+    type: cloudify.Fortinet.FortiGate.Config
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          inputs:
+            config_name: firewall policy
+            config_id: 2
+            config:
+              - name: zone1_external
+              - srcintf: zone1
+              - dstintf: external
+              - srcaddr: all
+              - dstaddr: all
+              - action: accept
+              - schedule: always
+              - service: ALL
+              - nat: enable
+            ssh_config: *fortigate_ssh_config
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: fortigate_server
+      - type: cloudify.relationships.depends_on
+        target: zone1
+      - type: cloudify.relationships.depends_on
+        target: zone_external

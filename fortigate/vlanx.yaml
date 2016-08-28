@@ -1,0 +1,52 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+dsl_definitions:
+
+  fortigate_ssh_config: &fortigate_ssh_config
+    host_string: { get_attribute: [fortigate_floating_ip, floating_ip_address] }
+    user: admin
+    password: ''
+
+node_templates:
+
+  vlanx:
+    type: cloudify.Fortinet.FortiGate.Config
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          inputs:
+            config_name: system interface
+            config_id: port2
+            config:
+              - ip: { concat: [get_attribute: [zone1_vlanx_server, ip], /24] }
+              - allowaccess: ssh
+              - alias: vlanx
+            ssh_config: *fortigate_ssh_config
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: fortigate_server
+      - type: cloudify.relationships.depends_on
+        target: zone1_vlanx_server
+      - type: cloudify.relationships.depends_on
+        target: vlana
+
+  zone1:
+    type: cloudify.nodes.Root
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: fortigate_server
+      - type: cloudify.relationships.depends_on
+        target: zone1_vlanx_server
+      - type: cloudify.relationships.depends_on
+        target: vlanx
+        source_interfaces:
+          cloudify.interfaces.relationship_lifecycle:
+            postconfigure:
+              implementation: fortinet.fortigate.config.create_in_relationship
+              inputs:
+                config_name: system zone
+                config_id: zone1
+                config:
+                  - intrazone: allow
+                  - interface: port2
+                ssh_config: *fortigate_ssh_config
