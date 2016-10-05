@@ -10,29 +10,22 @@ imports:
 inputs:
 
   keystone_username:
-    default: ''
     type: string
 
   keystone_password:
-    default: ''
     type: string
 
   keystone_tenant_name:
-    default: ''
     type: string
 
   keystone_url:
-    default: ''
     type: string
 
   region:
-    default: ''
     type: string
 
   nova_url:
-    default: ''
     type: string
 
   neutron_url:
-    default: ''
     type: string

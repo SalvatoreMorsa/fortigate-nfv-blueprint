@@ -19,7 +19,7 @@ from setuptools import setup
 setup(
     name='cloudify-fortinet-plugin',
     description='A Cloudify plugin for Fortinet NFV orchestration',
-    version='1.0',
+    version='1.1.dev0',
     license='LICENSE',
     zip_safe=False,
     packages=['fortigate'],

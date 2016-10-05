@@ -23,6 +23,7 @@ from cloudify.exceptions import NonRecoverableError, RecoverableError
 import fabric.api
 import fabric.state
 from fabric.exceptions import NetworkError, CommandTimeout
+from cloudify.decorators import operation
 
 # pylint: disable=R0903
 
@@ -71,3 +72,17 @@ class Generic(object):
             raise RecoverableError(ex)
         except CommandTimeout as ex:
             raise RecoverableError(ex)
+
+
+@operation
+def execute(command, ssh_config, **_):
+    '''Generic config create operation'''
+    # Create the configuration
+    iface = Generic(ssh_config=ssh_config)
+    iface.execute(command)
+    # Set runtime properties
+    ctx.instance.runtime_properties['ssh_config'] = ssh_config
+    ctx.instance.runtime_properties['command'] = command
+    # Dump the runtime properties
+    ctx.logger.debug('Runtime properties: {0}'.format(
+        ctx.instance.runtime_properties))
