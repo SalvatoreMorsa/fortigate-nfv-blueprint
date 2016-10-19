@@ -9,6 +9,8 @@ dsl_definitions:
 
 node_templates:
 
+  # This is a VLANX included in zone1
+
   vlanx:
     type: cloudify.Fortinet.FortiGate.Config
     interfaces:
@@ -29,6 +31,8 @@ node_templates:
         target: zone1_vlanx_server
       - type: cloudify.relationships.depends_on
         target: vlana
+
+  # This is a zone that allows intra-zone traffic
 
   zone1:
     type: cloudify.nodes.Root
