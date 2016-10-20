@@ -1,3 +1,5 @@
+[![Build Status](https://circleci.com/gh/cloudify-examples/openstack-fortigate-nfv-blueprint.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/cloudify-examples/openstack-fortigate-nfv-blueprint)
+
 # Openstack Fortigate NVF Blueprint
 
 ## Requirements
