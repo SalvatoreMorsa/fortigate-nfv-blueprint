@@ -9,6 +9,8 @@ dsl_definitions:
 
 node_templates:
 
+  # This is a static router
+
   basic_route:
     type: cloudify.Fortinet.FortiGate.Config
     interfaces:

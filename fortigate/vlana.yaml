@@ -9,7 +9,7 @@ dsl_definitions:
 
 node_templates:
 
-  # This VLAN will be configurd via DHCP.
+  # This is a VLAN included in zone_external
 
   vlana:
     type: cloudify.Fortinet.FortiGate.Config
@@ -25,6 +25,8 @@ node_templates:
     relationships:
       - type: cloudify.relationships.contained_in
         target: fortigate_server
+
+  # This is an external zone that allows intra-zone traffic
 
   zone_external:
     type: cloudify.nodes.Root

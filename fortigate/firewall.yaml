@@ -9,6 +9,8 @@ dsl_definitions:
 
 node_templates:
 
+  # This is a virtual ip
+
   fortigate_vip_1:
     type: cloudify.Fortinet.FortiGate.Config
     interfaces:
@@ -35,6 +37,8 @@ node_templates:
         target: zone1
       - type: cloudify.relationships.depends_on
         target: basic_route
+
+  # This is a firewall policy to allow inbound traffic to zone1
 
   fortigate_policy_allow_vip_1:
     type: cloudify.Fortinet.FortiGate.Config
