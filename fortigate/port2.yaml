@@ -1,0 +1,71 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+node_templates:
+
+  # This is port2 included in zone_internal
+
+  port2:
+    type: cloudify.Fortinet.FortiGate.Config
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          inputs:
+            config_name: system interface
+            config_id: port2
+            config:
+              - ip: { concat: [get_attribute: [demo_server, ip], /24] }
+              - allowaccess: ssh
+              - alias: port2
+            ssh_config:
+              host_string: { get_attribute: [example_aws_elastic_ip, aws_resource_id] }
+              user: admin
+              password: { get_attribute: [ fortigate_server, aws_resource_id ] } # uncomment this for aws
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: fortigate_server
+      - type: cloudify.relationships.depends_on
+        target: demo_server
+      - type: cloudify.relationships.depends_on
+        target: zone_external
+
+  # This is a zone that allows intra-zone traffic
+
+  internal:
+    type: cloudify.nodes.Root
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: fortigate_server
+      - type: cloudify.relationships.depends_on
+        target: demo_server
+      - type: cloudify.relationships.depends_on
+        target: port2
+        source_interfaces:
+          cloudify.interfaces.relationship_lifecycle:
+            postconfigure:
+              implementation: fortinet.fortigate.config.create_in_relationship
+              inputs:
+                config_name: system zone
+                config_id: internal
+                config:
+                  - intrazone: allow
+                  - interface: port2
+                ssh_config:
+                  host_string: { get_attribute: [example_aws_elastic_ip, aws_resource_id] }
+                  user: admin
+                  password: { get_attribute: [ fortigate_server, aws_resource_id ] } # uncomment this for aws
+
+  # This is a zone1 vlanx server template
+
+  # zone1_vlanx_server:
+  #   type: cloudify.openstack.nodes.Server
+  #   properties:
+  #     aws_config: { get_input: aws_configuration }
+  #     install_agent: false
+  #     server:
+  #       #image: { get_input: openstack_image_id }
+  #       image_id: { get_input: example_aws_virtual_machine_image_id }
+  #       #flavor: { get_input: openstack_flavor_id }
+  #     management_network_name: { get_property: [zone1_vlanx_network, resource_id] }
+  #   relationships:
+  #     - target: cloudify_agent_key
+  #       type: cloudify.openstack.server_connected_to_keypair

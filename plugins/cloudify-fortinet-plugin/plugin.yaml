@@ -11,7 +11,7 @@ plugins:
 
 
 node_types:
-  
+
   # This is a generic type used for development / testing of
   # new node types. The key difference here is the "name" input.
   # This field should be set to the configuration name such as

@@ -1,56 +1,49 @@
 tosca_definitions_version: cloudify_dsl_1_3
 
-dsl_definitions:
-
-  fortigate_ssh_config: &fortigate_ssh_config
-    host_string: { get_attribute: [fortigate_floating_ip, floating_ip_address] }
-    user: admin
-    password: ''
-
 node_templates:
 
-  # This is a VLANX included in zone1
+  # This is port1 included in zone_external
 
-  vlanx:
+  port1:
     type: cloudify.Fortinet.FortiGate.Config
     interfaces:
       cloudify.interfaces.lifecycle:
         create:
           inputs:
             config_name: system interface
-            config_id: port2
+            config_id: port1
             config:
-              - ip: { concat: [get_attribute: [zone1_vlanx_server, ip], /24] }
-              - allowaccess: ssh
-              - alias: vlanx
-            ssh_config: *fortigate_ssh_config
+              - alias: port1
+            ssh_config:
+              host_string: { get_attribute: [example_aws_elastic_ip, aws_resource_id] }
+              user: admin
+              password: { get_attribute: [ fortigate_server, aws_resource_id ] } # uncomment this for aws
     relationships:
       - type: cloudify.relationships.contained_in
         target: fortigate_server
-      - type: cloudify.relationships.depends_on
-        target: zone1_vlanx_server
-      - type: cloudify.relationships.depends_on
-        target: vlana
 
-  # This is a zone that allows intra-zone traffic
+  # This is an external zone that allows intra-zone traffic
 
-  zone1:
+  zone_external:
     type: cloudify.nodes.Root
     relationships:
       - type: cloudify.relationships.contained_in
         target: fortigate_server
       - type: cloudify.relationships.depends_on
-        target: zone1_vlanx_server
+        target: demo_server
       - type: cloudify.relationships.depends_on
-        target: vlanx
+        target: port1
         source_interfaces:
           cloudify.interfaces.relationship_lifecycle:
             postconfigure:
               implementation: fortinet.fortigate.config.create_in_relationship
               inputs:
                 config_name: system zone
-                config_id: zone1
+                config_id: external
                 config:
                   - intrazone: allow
-                  - interface: port2
-                ssh_config: *fortigate_ssh_config
+                  - interface: port1
+                ssh_config:
+                  host_string: { get_attribute: [example_aws_elastic_ip, aws_resource_id] }
+                  user: admin
+                  password: { get_attribute: [ fortigate_server, aws_resource_id ] } # uncomment this for aws

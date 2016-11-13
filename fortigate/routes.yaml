@@ -1,11 +1,5 @@
 tosca_definitions_version: cloudify_dsl_1_3
 
-dsl_definitions:
-
-  fortigate_ssh_config: &fortigate_ssh_config
-    host_string: { get_attribute: [fortigate_floating_ip, floating_ip_address] }
-    user: admin
-    password: ''
 
 node_templates:
 
@@ -21,7 +15,10 @@ node_templates:
             config_id: 1
             config:
               - device: port1
-            ssh_config: *fortigate_ssh_config
+            ssh_config:
+              host_string: { get_attribute: [example_aws_elastic_ip, aws_resource_id] }
+              user: admin
+              password: { get_attribute: [ fortigate_server, aws_resource_id ] } # uncomment this for aws
     relationships:
       - type: cloudify.relationships.contained_in
         target: fortigate_server

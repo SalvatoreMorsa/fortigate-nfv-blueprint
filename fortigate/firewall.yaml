@@ -1,11 +1,5 @@
 tosca_definitions_version: cloudify_dsl_1_3
 
-dsl_definitions:
-
-  fortigate_ssh_config: &fortigate_ssh_config
-    host_string: { get_attribute: [fortigate_floating_ip, floating_ip_address] }
-    user: admin
-    password: ''
 
 node_templates:
 
@@ -25,16 +19,19 @@ node_templates:
               - mappedip: { get_attribute: [fortigate_server, ip] }
               - extport: 2222
               - mappedport: 22
-            ssh_config: *fortigate_ssh_config
+            ssh_config:
+              host_string: { get_attribute: [example_aws_elastic_ip, aws_resource_id] }
+              user: admin
+              password: { get_attribute: [ fortigate_server, aws_resource_id ] } # uncomment this for aws
     relationships:
       - type: cloudify.relationships.contained_in
         target: fortigate_server
       - type: cloudify.relationships.depends_on
-        target: vlana
+        target: port1
       - type: cloudify.relationships.depends_on
         target: zone_external
       - type: cloudify.relationships.depends_on
-        target: zone1
+        target: internal
       - type: cloudify.relationships.depends_on
         target: basic_route
 
@@ -51,9 +48,9 @@ node_templates:
             config:
               - name: Allow VIP 1
               - srcintf: external
-              - dstintf: zone1
+              - dstintf: internal
               - srcaddr: all
-              - dstaddr: linuxvmssh
+              - dstaddr: all
               - action: accept
               - schedule: always
               - service: ALL
@@ -61,7 +58,11 @@ node_templates:
               - av-profile: default
               - ips-sensor: default
               - profile-protocol-options: default
-            ssh_config: *fortigate_ssh_config
+            ssh_config:
+              host_string: { get_attribute: [example_aws_elastic_ip, aws_resource_id] }
+              user: admin
+              password: { get_attribute: [ fortigate_server, aws_resource_id ] } # uncomment this for aws
+
     relationships:
       - type: cloudify.relationships.contained_in
         target: fortigate_server
@@ -70,4 +71,4 @@ node_templates:
       - type: cloudify.relationships.depends_on
         target: zone_external
       - type: cloudify.relationships.depends_on
-        target: zone1
+        target: internal

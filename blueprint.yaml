@@ -2,30 +2,5 @@ tosca_definitions_version: cloudify_dsl_1_3
 
 imports:
   - http://www.getcloudify.org/spec/cloudify/3.4/types.yaml
-  - http://www.getcloudify.org/spec/openstack-plugin/1.4/plugin.yaml
-  - network/network.yaml
-  - compute/compute.yaml
+  - aws/blueprint.yaml
   - fortigate/fortigate.yaml
-
-inputs:
-
-  keystone_username:
-    type: string
-
-  keystone_password:
-    type: string
-
-  keystone_tenant_name:
-    type: string
-
-  keystone_url:
-    type: string
-
-  region:
-    type: string
-
-  nova_url:
-    type: string
-
-  neutron_url:
-    type: string
