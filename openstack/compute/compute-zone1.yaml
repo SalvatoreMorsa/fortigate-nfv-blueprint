@@ -13,7 +13,7 @@ dsl_definitions:
 
 node_templates:
 
-  zone1_vlanx_server:
+  demo_server:
     type: cloudify.openstack.nodes.Server
     properties:
       openstack_config: *openstack_configuration

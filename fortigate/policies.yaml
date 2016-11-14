@@ -1,17 +1,10 @@
 tosca_definitions_version: cloudify_dsl_1_3
 
-dsl_definitions:
-
-  fortigate_ssh_config: &fortigate_ssh_config
-    host_string: { get_attribute: [fortigate_floating_ip, floating_ip_address] }
-    user: admin
-    password: ''
-
 node_templates:
 
   # This is a firewall policy to allow inbound traffic to zone1
 
-  external_zone1:
+  external_to_Internal_policy:
     type: cloudify.Fortinet.FortiGate.Config
     interfaces:
       cloudify.interfaces.lifecycle:
@@ -20,27 +13,27 @@ node_templates:
             config_name: firewall policy
             config_id: 1
             config:
-              - name: exteral_zone1
+              - name: external_to_internal
               - srcintf: external
-              - dstintf: zone1
+              - dstintf: internal
               - srcaddr: all
               - dstaddr: all
               - action: accept
               - schedule: always
               - service: ALL
               - nat: enable
-            ssh_config: *fortigate_ssh_config
+            ssh_config: { get_input: fortigate_server_config }
     relationships:
       - type: cloudify.relationships.contained_in
         target: fortigate_server
       - type: cloudify.relationships.depends_on
         target: zone_external
       - type: cloudify.relationships.depends_on
-        target: zone1
+        target: internal
 
   # This is a firewall policy to allow outbound traffic from zone1
 
-  zone1_external:
+  Internal_to_external_policy:
     type: cloudify.Fortinet.FortiGate.Config
     interfaces:
       cloudify.interfaces.lifecycle:
@@ -49,8 +42,8 @@ node_templates:
             config_name: firewall policy
             config_id: 2
             config:
-              - name: zone1_external
-              - srcintf: zone1
+              - name: internal_to_external
+              - srcintf: internal
               - dstintf: external
               - srcaddr: all
               - dstaddr: all
@@ -58,11 +51,11 @@ node_templates:
               - schedule: always
               - service: ALL
               - nat: enable
-            ssh_config: *fortigate_ssh_config
+            ssh_config: { get_input: fortigate_server_config }
     relationships:
       - type: cloudify.relationships.contained_in
         target: fortigate_server
       - type: cloudify.relationships.depends_on
-        target: zone1
+        target: internal
       - type: cloudify.relationships.depends_on
         target: zone_external

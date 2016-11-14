@@ -1,50 +1,49 @@
 tosca_definitions_version: cloudify_dsl_1_3
 
-dsl_definitions:
-
-  fortigate_ssh_config: &fortigate_ssh_config
-    host_string: { get_attribute: [fortigate_floating_ip, floating_ip_address] }
-    user: admin
-    password: ''
-
 node_templates:
 
-  # This is a VLAN included in zone_external
+  # This is port2 included in zone_internal
 
-  vlana:
+  port2:
     type: cloudify.Fortinet.FortiGate.Config
     interfaces:
       cloudify.interfaces.lifecycle:
         create:
           inputs:
             config_name: system interface
-            config_id: port1
+            config_id: port2
             config:
-              - alias: vlana
-            ssh_config: *fortigate_ssh_config
+              - ip: { concat: [get_attribute: [demo_server, ip], /24] }
+              - allowaccess: ssh
+              - alias: port2
+            ssh_config: { get_input: fortigate_server_config }
     relationships:
       - type: cloudify.relationships.contained_in
         target: fortigate_server
+      - type: cloudify.relationships.depends_on
+        target: demo_server
+      - type: cloudify.relationships.depends_on
+        target: zone_external
 
-  # This is an external zone that allows intra-zone traffic
+  # This is a zone that allows intra-zone traffic
 
-  zone_external:
+  internal:
     type: cloudify.nodes.Root
     relationships:
       - type: cloudify.relationships.contained_in
         target: fortigate_server
       - type: cloudify.relationships.depends_on
-        target: zone1_vlanx_server
+        target: demo_server
       - type: cloudify.relationships.depends_on
-        target: vlana
+        target: port2
         source_interfaces:
           cloudify.interfaces.relationship_lifecycle:
             postconfigure:
               implementation: fortinet.fortigate.config.create_in_relationship
               inputs:
                 config_name: system zone
-                config_id: external
+                config_id: internal
                 config:
                   - intrazone: allow
-                  - interface: port1
-                ssh_config: *fortigate_ssh_config
+                  - interface: port2
+                ssh_config: { get_input: fortigate_server_config }
