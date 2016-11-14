@@ -1,10 +1,10 @@
 [![Build Status](https://circleci.com/gh/cloudify-examples/openstack-fortigate-nfv-blueprint.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/cloudify-examples/openstack-fortigate-nfv-blueprint)
 
-# Openstack Fortigate NVF Blueprint
+# Fortigate NVF Blueprint
 
 ## Requirements
 
-* Openstack Kilo Environment
+* Openstack Kilo Environment or AWS Account
 * Licensed Fortigate VM Snapshot
 
 ## Contents
@@ -19,4 +19,5 @@ The Fortigate VM should be a Snapshot of a valid-licensed Fortigate Server.
 ## Instructions:
 
 * Create your inputs file. An example is provided.
-* Run this command: `cfy install -p openstack-fortigate-nfv-blueprint/blueprint.yaml --task-retry-interval=10 --task-retries=25 -i inputs.yaml`
+* Run this command: `cfy install -p fortigate-nfv-blueprint/openstack-blueprint.yaml --task-retry-interval=10 --task-retries=25 -i inputs.yaml`
+
