@@ -1,0 +1,18 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+imports:
+  - http://www.getcloudify.org/spec/cloudify/3.4/types.yaml
+  - http://www.getcloudify.org/spec/openstack-plugin/1.4/plugin.yaml
+  - openstack/blueprint.yaml
+  - fortigate/fortigate.yaml
+
+inputs:
+
+  fortigate_machine_password:
+    default: ''
+
+  fortigate_server_config:
+    default:
+      host_string: { get_attribute: [fortigate_floating_ip, floating_ip_address] }
+      user: admin
+      password: { get_input: fortigate_machine_password } # uncomment this for aws

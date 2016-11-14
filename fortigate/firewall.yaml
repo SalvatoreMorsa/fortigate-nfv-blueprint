@@ -1,6 +1,5 @@
 tosca_definitions_version: cloudify_dsl_1_3
 
-
 node_templates:
 
   # This is a virtual ip
@@ -14,15 +13,12 @@ node_templates:
             config_name: firewall vip
             config_id: linuxvmssh
             config:
-              - extintf: external
+              - extintf: port1
               - portforward: enable
-              - mappedip: { get_attribute: [fortigate_server, ip] }
+              - mappedip: { get_attribute: [ fortigate_server, ip] }
               - extport: 2222
               - mappedport: 22
-            ssh_config:
-              host_string: { get_attribute: [example_aws_elastic_ip, aws_resource_id] }
-              user: admin
-              password: { get_attribute: [ fortigate_server, aws_resource_id ] } # uncomment this for aws
+            ssh_config: { get_input: fortigate_server_config }
     relationships:
       - type: cloudify.relationships.contained_in
         target: fortigate_server
@@ -58,11 +54,7 @@ node_templates:
               - av-profile: default
               - ips-sensor: default
               - profile-protocol-options: default
-            ssh_config:
-              host_string: { get_attribute: [example_aws_elastic_ip, aws_resource_id] }
-              user: admin
-              password: { get_attribute: [ fortigate_server, aws_resource_id ] } # uncomment this for aws
-
+            ssh_config: { get_input: fortigate_server_config }
     relationships:
       - type: cloudify.relationships.contained_in
         target: fortigate_server

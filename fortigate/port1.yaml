@@ -14,10 +14,7 @@ node_templates:
             config_id: port1
             config:
               - alias: port1
-            ssh_config:
-              host_string: { get_attribute: [example_aws_elastic_ip, aws_resource_id] }
-              user: admin
-              password: { get_attribute: [ fortigate_server, aws_resource_id ] } # uncomment this for aws
+            ssh_config: { get_input: fortigate_server_config }
     relationships:
       - type: cloudify.relationships.contained_in
         target: fortigate_server
@@ -43,7 +40,4 @@ node_templates:
                 config:
                   - intrazone: allow
                   - interface: port1
-                ssh_config:
-                  host_string: { get_attribute: [example_aws_elastic_ip, aws_resource_id] }
-                  user: admin
-                  password: { get_attribute: [ fortigate_server, aws_resource_id ] } # uncomment this for aws
+                ssh_config: { get_input: fortigate_server_config }

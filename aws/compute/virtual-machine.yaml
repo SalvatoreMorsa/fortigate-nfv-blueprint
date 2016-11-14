@@ -11,8 +11,7 @@ inputs:
     default: ''
 
   example_aws_virtual_machine_image_id:
-    default: ami-22e37f51 # Fortigate VM
-    #default: ami-165bdf01 # Cloudify Manager AMI
+    default: ami-c2768daf # Fortigate VM
 
   example_aws_virtual_machine_instance_type:
     default: m3.large
