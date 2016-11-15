@@ -24,4 +24,4 @@ node_templates:
       - type: cloudify.aws.relationships.connected_to_subnet
         target: example_aws_private_subnet
       - type: cloudify.aws.relationships.eni_connected_to_instance
-        target: example_aws_virtual_machine 
+        target: fortigate_server
